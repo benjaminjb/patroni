@@ -217,7 +217,8 @@ class Ha(object):
 
     def clone(self, clone_member=None, msg='(without leader)'):
         logger.warn("HELLO CLONE FUNC")
-        logger.warn("HELLO msg=", msg)
+        logger.warn("HELLO msg=")
+        logger.warn(msg)
         if clone_member:
             logger.warn("HELLO CLONE MEMBER")
         if self.is_standby_cluster() and not isinstance(clone_member, RemoteMember):

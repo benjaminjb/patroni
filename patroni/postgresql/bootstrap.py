@@ -168,7 +168,7 @@ class Bootstrap(object):
 
         logger.warn("Let's look at the clone_member again")
         logger.warn(str(clone_member))
-        print(type(clone_member))
+        logger.warn(type(clone_member))
 
         is_remote_master = isinstance(clone_member, RemoteMember)
 

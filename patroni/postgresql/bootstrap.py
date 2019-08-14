@@ -162,24 +162,28 @@ class Bootstrap(object):
             defined by the user.  this is a list, so we need to
             loop through all methods the user supplies
         """
-
+        logger.warn("STARTING create_replica")
         self._postgresql.set_state('creating replica')
         self._postgresql.schedule_sanity_checks_after_pause()
 
         is_remote_master = isinstance(clone_member, RemoteMember)
 
+        logger.warn("is_remote_master = ", str(is_remote_master))
         # get list of replica methods either from clone member or from
         # the config. If there is no configuration key, or no value is
         # specified, use basebackup
         replica_methods = (clone_member.create_replica_methods if is_remote_master
                            else self._postgresql.create_replica_methods) or ['basebackup']
 
+        logger.warn("replica_methods = ", str(replica_methods))
         if clone_member and clone_member.conn_url:
+            logger.warn("clone_member and clone_member.conn_url")
             r = clone_member.conn_kwargs(self._postgresql.config.replication)
             connstring = uri('postgres', (r['host'], r['port']), r['database'], r['user'])
             # add the credentials to connect to the replica origin to pgpass.
             env = self._postgresql.write_pgpass(r)
         else:
+            logger.warn("ELSE")
             connstring = ''
             env = os.environ.copy()
             # if we don't have any source, leave only replica methods that work without it
@@ -189,20 +193,29 @@ class Bootstrap(object):
         # go through them in priority order
         ret = 1
         for replica_method in replica_methods:
+            logger.warn("replica_method is ", str(replica_method))
             if self._postgresql.cancellable.is_cancelled:
+                logger.warn("cancelled")
                 break
 
             method_config = self._postgresql.replica_method_options(replica_method)
+            logger.warn("method_config is ", str(method_config))
 
             # if the method is basebackup, then use the built-in
             if replica_method == "basebackup":
+                logger.warn("basebackup")
+                logger.warn("connstring is ", str(connstring))
+                logger.warn("env is ", str(env))
+                logger.warn("method_config is ", str(method_config))
                 ret = self.basebackup(connstring, env, method_config)
                 if ret == 0:
                     logger.info("replica has been created using basebackup")
                     # if basebackup succeeds, exit with success
                     break
             else:
+                logger.warn("not basebackup")
                 if not self._postgresql.data_directory_empty():
+                    logger.warn("data directory not empty?")
                     if method_config.get('keep_data', False):
                         logger.info('Leaving data directory uncleaned')
                     else:
@@ -215,16 +228,19 @@ class Bootstrap(object):
                     # look to see if the user has supplied a full command path
                     # if not, use the method name as the command
                     cmd = method_config.pop('command', cmd)
-
+                
+                logger.warn("NOW cmd is ", str(cmd))
                 # add the default parameters
                 if not method_config.get('no_params', False):
                     method_config.update({"scope": self._postgresql.scope,
                                           "role": "replica",
                                           "datadir": self._postgresql.data_dir,
                                           "connstring": connstring})
+                    logger.warn("NOW AFTER UPDATE (1) method_config is ", str(method_config))
                 else:
                     for param in ('no_params', 'no_master', 'keep_data'):
                         method_config.pop(param, None)
+                    logger.warn("NOW AFTER UPDATE (2) method_config is ", str(method_config))
                 params = ["--{0}={1}".format(arg, val) for arg, val in method_config.items()]
                 try:
                     # call script with the full set of parameters
@@ -287,6 +303,7 @@ class Bootstrap(object):
         """
 
         ret = self.create_replica(clone_member) == 0
+        logger.warn("RET IS", ret)
         if ret:
             self._post_restore()
         return ret

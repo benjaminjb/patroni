@@ -102,9 +102,12 @@ class Ha(object):
         return self.check_mode('check_timeline')
 
     def get_standby_cluster_config(self):
+        logger.warn("HELLO get_standby_cluster_config")
         if self.cluster and self.cluster.config and self.cluster.config.modify_index:
+            logger.warn("HELLO cluster config")
             config = self.cluster.config.data
         else:
+            logger.warn("HELLO dynamic configuration")
             config = self.patroni.config.dynamic_configuration
         return config.get('standby_cluster')
 
@@ -213,11 +216,29 @@ class Ha(object):
             return self.dcs.touch_member(data)
 
     def clone(self, clone_member=None, msg='(without leader)'):
+        logger.warn("HELLO CLONE FUNC")
+        if clone_member:
+            logger.warn("HELLO CLONE MEMBER")
         if self.is_standby_cluster() and not isinstance(clone_member, RemoteMember):
+            logger.warn("is standby cluster and not isinstance(clone_member, RemoteMember)")
             clone_member = self.get_remote_member(clone_member)
+
+        logger.warn("HELLO primary_slot_name")
+        logger.warn(str(clone_member.primary_slot_name))
+        logger.warn("HELLO create_replica_methods")
+        logger.warn(str(clone_member.create_replica_methods))
+        logger.warn("HELLO index")
+        logger.warn(str(clone_member.index))
+        logger.warn("HELLO name")
+        logger.warn(str(clone_member.name))
+        logger.warn("HELLO session")
+        logger.warn(str(clone_member.session))
+        logger.warn("HELLO data")
+        logger.warn(str(clone_member.data))
 
         self._rewind.reset_state()
         if self.state_handler.bootstrap.clone(clone_member):
+            logger.warn("BOOTSTRAPPED!")
             logger.info('bootstrapped %s', msg)
             cluster = self.dcs.get_cluster()
             node_to_follow = self._get_node_to_follow(cluster)
@@ -1386,8 +1407,10 @@ class Ha(object):
             master to stream. Config can be both patroni config or
             cluster.config.data
         """
+        logger.warn("GETTING REMOTE MEMBER")
         cluster_params = self.get_standby_cluster_config()
-
+        logger.warn("str(cluster_params)")
+        logger.warn(str(cluster_params))
         if cluster_params:
             name = member.name if member else 'remote_master:{}'.format(uuid.uuid1())
 

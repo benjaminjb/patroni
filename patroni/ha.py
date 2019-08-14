@@ -225,6 +225,9 @@ class Ha(object):
             logger.warn("is standby cluster and not isinstance(clone_member, RemoteMember)")
             clone_member = self.get_remote_member(clone_member)
 
+        check = isinstance(clone_member, RemoteMember)
+        logger.warn("check is")
+        logger.warn(str(check))
         logger.warn(str(clone_member))
         # logger.warn("HELLO primary_slot_name")
         # logger.warn(str(clone_member.primary_slot_name))

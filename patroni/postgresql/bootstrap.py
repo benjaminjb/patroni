@@ -166,6 +166,10 @@ class Bootstrap(object):
         self._postgresql.set_state('creating replica')
         self._postgresql.schedule_sanity_checks_after_pause()
 
+        logger.warn("Let's look at the clone_member again")
+        logger.warn(str(clone_member))
+        print(type(clone_member))
+
         is_remote_master = isinstance(clone_member, RemoteMember)
 
         logger.warn("is_remote_master = ")

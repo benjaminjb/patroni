@@ -309,6 +309,7 @@ class Client(etcd.Client):
 class Etcd(AbstractDCS):
 
     def __init__(self, config):
+        logger.warn("init Etcd")
         super(Etcd, self).__init__(config)
         self._ttl = int(config.get('ttl') or 30)
         self._retry = Retry(deadline=config['retry_timeout'], max_delay=1, max_tries=-1,

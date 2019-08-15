@@ -57,6 +57,7 @@ class PatroniSequentialThreadingHandler(SequentialThreadingHandler):
 class ZooKeeper(AbstractDCS):
 
     def __init__(self, config):
+        logger.warn("init ZooKeeper")
         super(ZooKeeper, self).__init__(config)
 
         hosts = config.get('hosts', [])

@@ -178,6 +178,7 @@ def service_name_from_scope_name(scope_name):
 class Consul(AbstractDCS):
 
     def __init__(self, config):
+        logger.warn("init Consul")
         super(Consul, self).__init__(config)
         self._scope = config['scope']
         self._session = None

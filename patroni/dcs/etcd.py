@@ -349,6 +349,8 @@ class Etcd(AbstractDCS):
 
     @staticmethod
     def get_etcd_client(config):
+        logger.warn("CONFIG FOR get_etcd_client")
+        logger.warn(str(config))
         if 'proxy' in config:
             config['use_proxies'] = True
             config['url'] = config['proxy']
@@ -453,6 +455,9 @@ class Etcd(AbstractDCS):
         cluster = None
         try:
             result = self.retry(self._client.read, self.client_path(''), recursive=True)
+            logger.warn("RESULT")
+            logger.warn(str(result))
+            logger.warn(str(result.leaves))
             nodes = {node.key[len(result.key):].lstrip('/'): node for node in result.leaves}
 
             # get initialize flag

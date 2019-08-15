@@ -109,6 +109,8 @@ class Ha(object):
         else:
             logger.warn("HELLO dynamic configuration")
             config = self.patroni.config.dynamic_configuration
+        logger.warn("CONFIG!")
+        logger.warn(str(config))
         return config.get('standby_cluster')
 
     def is_standby_cluster(self):
@@ -1096,6 +1098,7 @@ class Ha(object):
                 return (False, 'restart failed')
 
     def _do_reinitialize(self, cluster):
+        logger.warn("_do_reinitialize")
         self.state_handler.stop('immediate')
         # Commented redundant data directory cleanup here
         # self.state_handler.remove_data_directory()

@@ -286,6 +286,13 @@ class Kubernetes(AbstractDCS):
 
     def patch_or_create_config(self, annotations, resource_version=None, patch=False, retry=True):
         # SCOPE-config endpoint requires corresponding service otherwise it might be "cleaned" by k8s master
+        logger.warn("RUNNING patch_or_create_config")
+        logger.warn("self.__subsets = ")
+        logger.warn(str(self.__subsets))
+        logger.warn("patch = ")
+        logger.warn(str(patch))
+        logger.warn("resource_version = ")
+        logger.warn(str(resource_version))
         if self.__subsets and not patch and not resource_version:
             self._should_create_config_service = True
             self._create_config_service()
@@ -295,6 +302,11 @@ class Kubernetes(AbstractDCS):
         return ret
 
     def _create_config_service(self):
+        logger.warn("RUNNING _create_config_service")
+        logger.warn("self._namespace")
+        logger.warn(str(self._namespace))
+        logger.warn("self.config_path")
+        logger.warn(str(self.config_path))
         metadata = k8s_client.V1ObjectMeta(namespace=self._namespace, name=self.config_path, labels=self._labels)
         body = k8s_client.V1Service(metadata=metadata, spec=k8s_client.V1ServiceSpec(cluster_ip='None'))
         try:

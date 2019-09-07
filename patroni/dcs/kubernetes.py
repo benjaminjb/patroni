@@ -73,7 +73,6 @@ def catch_kubernetes_errors(func):
 class Kubernetes(AbstractDCS):
 
     def __init__(self, config):
-        logger.warn("init Kubernetes")
         self._labels = config['labels']
         self._labels[config.get('scope_label', 'cluster-name')] = config['scope']
         self._label_selector = ','.join('{0}={1}'.format(k, v) for k, v in self._labels.items())
@@ -101,6 +100,8 @@ class Kubernetes(AbstractDCS):
                 port.update({n: p[n] for n in ('name', 'protocol') if p.get(n)})
                 ports.append(k8s_client.V1EndpointPort(**port))
             self.__subsets = [k8s_client.V1EndpointSubset(addresses=addresses, ports=ports)]
+            logger.warn("LOOK AT THESE SUBSETS")
+            logger.warn(str(self.__subsets))
             self._should_create_config_service = True
         self._api = CoreV1ApiProxy(use_endpoints)
         self.set_retry_timeout(config['retry_timeout'])
@@ -146,31 +147,12 @@ class Kubernetes(AbstractDCS):
         try:
             # get list of members
             response = self.retry(self._api.list_namespaced_pod, self._namespace, label_selector=self._label_selector)
-            logger.warn("RESPONSE FROM list_namespaced_pod")
-            logger.warn(str(response))
-            logger.warn("self._namespace")
-            logger.warn(str(self._namespace))
-            logger.warn("self._label_selector")
-            logger.warn(str(self._label_selector))
             members = [self.member(pod) for pod in response.items]
             
-            logger.warn("members")
-            logger.warn(str(members))
-
             response = self.retry(self._api.list_namespaced_kind, self._namespace, label_selector=self._label_selector)
             nodes = {item.metadata.name: item for item in response.items}
 
-            logger.warn("nodes")
-            logger.warn(str(nodes))
-
             config = nodes.get(self.config_path)
-
-            logger.warn("self.config_path")
-            logger.warn(str(self.config_path))
-
-            logger.warn("config")
-            logger.warn(str(config))
-
             metadata = config and config.metadata
             self._config_resource_version = metadata.resource_version if metadata else None
             annotations = metadata and metadata.annotations or {}
@@ -182,20 +164,11 @@ class Kubernetes(AbstractDCS):
             config = ClusterConfig.from_node(metadata and metadata.resource_version,
                                              annotations.get(self._CONFIG) or '{}',
                                              metadata.resource_version if self._CONFIG in annotations else 0)
-            logger.warn("ClusterConfig config")
-            logger.warn(str(config))
-
             # get timeline history
             history = TimelineHistory.from_node(metadata and metadata.resource_version,
                                                 annotations.get(self._HISTORY) or '[]')
 
             leader = nodes.get(self.leader_path)
-
-            logger.warn("self.leader_path")
-            logger.warn(str(self.leader_path))
-            logger.warn("leader")
-            logger.warn(str(leader))
-
 
             metadata = leader and leader.metadata
             self._leader_resource_version = metadata.resource_version if metadata else None

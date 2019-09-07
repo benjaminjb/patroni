@@ -18,7 +18,7 @@ metadata:
     application: patroni
     cluster-name: *cluster_name
 spec:
-  replicas: 3
+  replicas: 2
   serviceName: *cluster_name
   template:
     metadata:

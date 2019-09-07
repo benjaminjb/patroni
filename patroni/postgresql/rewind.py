@@ -202,9 +202,7 @@ class Rewind(object):
         return False
 
     def reset_state(self):
-        logger.warn("RESETTING STATE")
         self._state = REWIND_STATUS.INITIAL
-        logger.warn("RESET STATE, YEAH")
 
     @property
     def is_needed(self):

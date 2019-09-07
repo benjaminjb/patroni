@@ -149,10 +149,27 @@ class Kubernetes(AbstractDCS):
             response = self.retry(self._api.list_namespaced_pod, self._namespace, label_selector=self._label_selector)
             members = [self.member(pod) for pod in response.items]
             
+            logger.warn("_load_cluster")
+            logger.warn("self._label_selector")
+            logger.warn(str(self._label_selector))
+
+            logger.warn("members")
+            logger.warn(str(members))
+
             response = self.retry(self._api.list_namespaced_kind, self._namespace, label_selector=self._label_selector)
             nodes = {item.metadata.name: item for item in response.items}
 
+            logger.warn("nodes")
+            logger.warn(str(nodes))
+
+            logger.warn("self.config_path")
+            logger.warn(str(self.config_path))
+
             config = nodes.get(self.config_path)
+
+            logger.warn("config")
+            logger.warn(str(config))
+
             metadata = config and config.metadata
             self._config_resource_version = metadata.resource_version if metadata else None
             annotations = metadata and metadata.annotations or {}

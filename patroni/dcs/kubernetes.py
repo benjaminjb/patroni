@@ -373,6 +373,11 @@ class Kubernetes(AbstractDCS):
         return self.patch_or_create(self.failover_path, annotations, index, bool(index or patch), False)
 
     def set_config_value(self, value, index=None):
+        logger.warn("set_config_value")
+        logger.warn("index")
+        logger.warn(str(index))
+        logger.warn("self._config_resource_version")
+        logger.warn(str(self._config_resource_version))
         return self.patch_or_create_config({self._CONFIG: value}, index, bool(self._config_resource_version), False)
 
     @catch_kubernetes_errors
@@ -401,6 +406,14 @@ class Kubernetes(AbstractDCS):
     def initialize(self, create_new=True, sysid=""):
         cluster = self.cluster
         resource_version = cluster.config.index if cluster and cluster.config and cluster.config.index else None
+        logger.warn("initialize")
+        if cluster:
+            logger.warn("cluster")
+            logger.warn(str(cluster))
+            if cluster.config:
+                logger.warn("cluster.config")
+                if cluster.config.index:
+                    logger.warn("cluster.config.index")
         return self.patch_or_create_config({self._INITIALIZE: sysid}, resource_version)
 
     def delete_leader(self):
@@ -409,6 +422,7 @@ class Kubernetes(AbstractDCS):
             self.reset_cluster()
 
     def cancel_initialization(self):
+        logger.warn("cancel_initialization")
         self.patch_or_create_config({self._INITIALIZE: None}, self._config_resource_version, True)
 
     @catch_kubernetes_errors
@@ -416,6 +430,7 @@ class Kubernetes(AbstractDCS):
         self.retry(self._api.delete_collection_namespaced_kind, self._namespace, label_selector=self._label_selector)
 
     def set_history_value(self, value):
+        logger.warn("set_history_value")
         return self.patch_or_create_config({self._HISTORY: value}, None, bool(self._config_resource_version), False)
 
     def set_sync_state_value(self, value, index=None):
